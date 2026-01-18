@@ -1,0 +1,24 @@
+{
+    "dimensions": [
+        {
+            "dimension_name": "Opinion Clarity and Justification",
+            "description": "Assesses whether the review communicates a clear overall judgment (e.g., positive/negative/mixed) and supports it with specific, relevant reasons rather than vague assertions."
+        },
+        {
+            "dimension_name": "Coverage of Key Film Aspects",
+            "description": "Evaluates how well the text addresses important elements such as plot, acting, action/choreography, direction/production quality, pacing, and originality in a balanced way."
+        },
+        {
+            "dimension_name": "Coherence and Organization",
+            "description": "Measures logical flow and readability, including whether points are structured sensibly, transitions are clear, and the review avoids rambling or contradictory statements."
+        },
+        {
+            "dimension_name": "Writing Quality and Mechanics",
+            "description": "Rates grammar, spelling, punctuation, and sentence construction, including appropriate formatting (e.g., avoiding excessive typos or distracting markup) that affects comprehension."
+        },
+        {
+            "dimension_name": "Tone Appropriateness and Fairness",
+            "description": "Judges whether the tone is suitable for a review (not overly hostile, biased, or ad hominem) and whether criticisms/praise are proportionate and respectful."
+        }
+    ]
+}
