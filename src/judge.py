@@ -2,8 +2,8 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# --- Configuration ---
 load_dotenv()
-
 try:
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 except Exception as e:
@@ -11,43 +11,44 @@ except Exception as e:
     print(e)
     exit()
 
-# --- The Core Function ---
-def get_llm_judge_score(text_to_evaluate: str, prompt_template: str) -> int | None:
+# --- The Core Function (Upgraded) ---
+def get_llm_judge_score(
+    text_to_evaluate: str,
+    prompt_template: str,
+    model_name: str = "gpt-5.2",
+    temperature: float = 1
+) -> int | None:
     """
-    Calls an OpenAI LLM to judge a piece of text based on a prompt and returns a numerical score.
+    Calls an OpenAI LLM using the Responses API to judge a piece of text.
 
     Args:
         text_to_evaluate: The text you want the LLM to score.
-        prompt_template: A template string that will be used for the prompt.
+        prompt_template: A template string for the user prompt.
+        model_name: The specific OpenAI model to use.
+        temperature: The sampling temperature to use (controls randomness).
 
     Returns:
         An integer score if successful, None otherwise.
     """
-    # The system prompt is now part of the 'messages' list for OpenAI
     system_prompt = (
         "You are a helpful evaluation assistant. Your task is to rate the given text on a scale of 1 to 10. "
         "You must respond with ONLY a single integer and nothing else. Do not add any explanation or context."
     )
-    
-    # Format the user's prompt using the text we want to evaluate.
     user_prompt = prompt_template.format(text=text_to_evaluate)
 
     try:
-        # Note the change to client.chat.completions.create
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini-2025-04-14", 
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+        response = client.responses.create(
+            model=model_name,
+            input=[
+                {"type": "message", "role": "user", "content": [{"type": "input_text", "text": user_prompt}]}
             ],
-            max_tokens=5,
-            temperature=0.7
+            instructions=system_prompt,
+            max_output_tokens=16,
+            temperature=temperature
         )
         
-        # The response structure is different for OpenAI
-        response_text = response.choices[0].message.content.strip()
+        response_text = response.output[0].content[0].text.strip()
         
-        # Safely convert the response to an integer.
         return int(response_text)
 
     except Exception as e:
@@ -56,17 +57,21 @@ def get_llm_judge_score(text_to_evaluate: str, prompt_template: str) -> int | No
 
 # --- Test Block ---
 if __name__ == "__main__":
-    print("--- Running MVP Judge Test (OpenAI Backend) ---")
+    print("--- Running MVP Judge Test (Responses API & GPT-5.2) ---")
 
-    sample_text = "The sun is a star. It is very big and hot. Earth goes around the sun."
-
-    sample_prompt = "How good is the following summary? Here is the text: '{text}'"
+    sample_text = "The sun is a star. It is very big and hot. Earth orbits the sun."
+    sample_prompt = "How would you rate the factual accuracy and clarity of this summary from 1-10? Text: '{text}'"
     
-    score = get_llm_judge_score(sample_text, sample_prompt)
+    # Call our refactored judge function with a specific model and temperature
+    score = get_llm_judge_score(
+        text_to_evaluate=sample_text,
+        prompt_template=sample_prompt,
+        model_name="gpt-5.2",
+        temperature=0.1
+    )
 
     if score is not None:
         print(f"Text: '{sample_text}'")
-        print(f"Prompt: '{sample_prompt}'")
         print(f"Judged Score: {score}")
         print("--- Test Successful ---")
     else:

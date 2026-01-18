@@ -1,3 +1,7 @@
 openai
 dotenv
 datasets
+numpy
+asyncio
+fastmcp
+requests
